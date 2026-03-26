@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 D&D Online — Кампании и персонажи</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- 🔝 Навигация -->
+  <nav class="navbar">
+    <div class="logo">🎲 D&D Online</div>
+    <div id="auth-section">
+      <button id="login-btn" class="btn btn-primary">Вход</button>
+      <button id="register-btn" class="btn btn-secondary">Регистрация</button>
+    </div>
+    <div id="user-section" class="user-info" style="display:none;">
+      <span id="username"></span>
+      <span id="user-role" class="badge"></span>
+      <button id="logout-btn" class="btn btn-sm btn-danger">Выход</button>
+    </div>
+  </nav>
+
+  <!-- 📦 Основной контейнер -->
+  <main class="container">
+    
+    <!-- 🔐 Формы авторизации -->
+    <section id="auth-forms">
+      
+      <!-- Форма входа -->
+      <form id="login-form" class="form-card">
+        <h2>🔑 Вход</h2>
+        <div class="form-group">
+          <label for="login-username">Логин</label>
+          <input type="text" id="login-username" placeholder="Ваш логин" required minlength="3" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Пароль</label>
+          <input type="password" id="login-password" placeholder="••••••••" required minlength="8">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Войти</button>
+        <p class="form-hint">Нет аккаунта? <a href="#" id="switch-to-register">Зарегистрироваться</a></p>
+      </form>
+
+      <!-- Форма регистрации -->
+      <form id="register-form" class="form-card" style="display:none;">
+        <h2>✨ Регистрация</h2>
+        <div class="form-group">
+          <label for="reg-username">Логин</label>
+          <input type="text" id="reg-username" placeholder="Придумайте логин" required minlength="3" maxlength="50">
+          <small>3-50 символов, только латиница</small>
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Пароль</label>
+          <input type="password" id="reg-password" placeholder="••••••••" required minlength="8">
+          <small>Минимум 8 символов</small>
+        </div>
+        <div class="form-group">
+          <label for="reg-role">Роль</label>
+          <select id="reg-role">
+            <option value="player">🧙 Игрок</option>
+            <option value="dm">🐉 Dungeon Master</option>
+          </select>
+          <small class="form-hint">DM создаёт кампании и управляет игрой</small>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Зарегистрироваться</button>
+        <p class="form-hint">Уже есть аккаунт? <a href="#" id="switch-to-login">Войти</a></p>
+      </form>
+    </section>
+
+    <!-- 🎮 Дашборд (после входа) -->
+    <section id="dashboard" style="display:none;">
+      
+      <!-- 🔘 Вкладки навигации -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="characters">👤 Персонажи</button>
+        <button class="tab-btn" data-tab="campaigns">🗡️ Кампании</button>
+        <button class="tab-btn" data-tab="sessions">📜 Сессии</button>
+        <button class="tab-btn" data-tab="game">⚔️ Игра</button>
+      </div>
+
+      <!-- 👤 Вкладка: Персонажи -->
+      <div id="characters-tab" class="tab-content active">
+        <div class="tab-header">
+          <h3>Мои персонажи</h3>
+          <button id="create-character-btn" class="btn btn-primary">➕ Создать</button>
+        </div>
+        
+        <!-- Форма создания/редактирования персонажа -->
+        <form id="character-form" class="form-card" style="display:none;">
+          <input type="hidden" id="char-id">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Имя *</label>
+              <input type="text" id="char-name" required maxlength="100">
+            </div>
+            <div class="form-group">
+              <label>Раса</label>
+              <input type="text" id="char-race" placeholder="Человек, Эльф...">
+            </div>
+            <div class="form-group">
+              <label>Класс</label>
+              <input type="text" id="char-class" placeholder="Воин, Маг...">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Предыстория</label>
+              <input type="text" id="char-background">
+            </div>
+            <div class="form-group">
+              <label>Мировоззрение</label>
+              <input type="text" id="char-alignment" placeholder="Законопослушный добрый">
+            </div>
+            <div class="form-group">
+              <label>Уровень</label>
+              <input type="number" id="char-level" min="1" max="20" value="1">
+            </div>
+          </div>
+          
+          <fieldset class="stats-group">
+            <legend>📊 Характеристики</legend>
+            <div class="stats-grid">
+              <div class="stat-input">
+                <label>STR <small id="str-mod" class="mod-badge">+0</small></label>
+                <input type="number" id="char-str" min="1" max="30" value="10" data-stat="str">
+              </div>
+              <div class="stat-input">
+                <label>DEX <small id="dex-mod" class="mod-badge">+0</small></label>
+                <input type="number" id="char-dex" min="1" max="30" value="10" data-stat="dex">
+              </div>
+              <div class="stat-input">
+                <label>CON <small id="con-mod" class="mod-badge">+0</small></label>
+                <input type="number" id="char-con" min="1" max="30" value="10" data-stat="con">
+              </div>
+              <div class="stat-input">
+                <label>INT <small id="int-mod" class="mod-badge">+0</small></label>
+                <input type="number" id="char-int" min="1" max="30" value="10" data-stat="int">
+              </div>
+              <div class="stat-input">
+                <label>WIS <small id="wis-mod" class="mod-badge">+0</small></label>
+                <input type="number" id="char-wis" min="1" max="30" value="10" data-stat="wis">
+              </div>
+              <div class="stat-input">
+                <label>CHA <small id="cha-mod" class="mod-badge">+0</small></label>
+                <input type="number" id="char-cha" min="1" max="30" value="10" data-stat="cha">
+              </div>
+            </div>
+          </fieldset>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>HP (текущие / максимум)</label>
+              <div class="input-group">
+                <input type="number" id="char-hp-current" min="0" value="1" placeholder="0">
+                <span>/</span>
+                <input type="number" id="char-hp-max" min="1" value="1" placeholder="10">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Класс брони (AC)</label>
+              <input type="number" id="char-ac" min="1" value="10">
+            </div>
+            <div class="form-group">
+              <label>Скорость (фт)</label>
+              <input type="number" id="char-speed" min="0" value="30">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Внешность</label>
+            <textarea id="char-appearance" rows="2" placeholder="Описание внешности..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Предыстория</label>
+            <textarea id="char-backstory" rows="3" placeholder="История персонажа..."></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <button type="button" id="cancel-character" class="btn btn-secondary">Отмена</button>
+            <button type="button" id="delete-character" class="btn btn-danger" style="display:none;">🗑️ Удалить</button>
+          </div>
+        </form>
+        
+        <!-- Список персонажей -->
+        <div id="characters-list" class="grid-list"></div>
+      </div>
+
+      <!-- 🗡️ Вкладка: Кампании -->
+      <div id="campaigns-tab" class="tab-content">
+        <div class="tab-header">
+          <h3>Кампании</h3>
+          <button id="create-campaign-btn" class="btn btn-primary" style="display:none;">➕ Создать</button>
+        </div>
+        
+        <!-- Форма создания кампании (только DM) -->
+        <form id="campaign-form" class="form-card" style="display:none;">
+          <input type="hidden" id="camp-id">
+          <div class="form-group">
+            <label>Название *</label>
+            <input type="text" id="camp-name" required maxlength="100">
+          </div>
+          <div class="form-group">
+            <label>Описание</label>
+            <textarea id="camp-description" rows="3" placeholder="О чём эта кампания?"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Лимит игроков</label>
+              <select id="camp-player-limit">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Размер сетки (px)</label>
+              <input type="number" id="camp-grid-size" min="20" max="200" value="50">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Карта (base64 или URL)</label>
+            <textarea id="camp-map-data" rows="2" placeholder="data:image/png;base64,... или https://..."></textarea>
+            <small>Макс. размер: 5 МБ</small>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <button type="button" id="cancel-campaign" class="btn btn-secondary">Отмена</button>
+          </div>
+        </form>
+        
+        <!-- Присоединение к кампании (для игроков) -->
+        <div id="join-campaign-form" class="form-card">
+          <h4>🔑 Присоединиться к кампании</h4>
+          <div class="form-row">
+            <input type="text" id="camp-code" placeholder="Код доступа (6 символов)" maxlength="6" pattern="[A-Z0-9]{6}">
+            <select id="char-for-campaign">
+              <option value="">Выберите персонажа</option>
+            </select>
+            <button id="join-campaign-btn" class="btn btn-primary">Войти</button>
+          </div>
+        </div>
+        
+        <!-- Список кампаний -->
+        <div id="campaigns-list" class="grid-list"></div>
+      </div>
+
+      <!-- 📜 Вкладка: Сессии -->
+      <div id="sessions-tab" class="tab-content">
+        <div class="tab-header">
+          <h3>Игровые сессии</h3>
+          <button id="create-session-btn" class="btn btn-primary" style="display:none;">➕ Новая сессия</button>
+        </div>
+        
+        <!-- Выбор кампании для сессий -->
+        <div class="form-card">
+          <div class="form-row">
+            <label>Кампания:</label>
+            <select id="session-campaign-select">
+              <option value="">Выберите кампанию</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Форма создания сессии (только DM) -->
+        <form id="session-form" class="form-card" style="display:none;">
+          <input type="hidden" id="session-campaign-id">
+          <div class="form-group">
+            <label>Название сессии *</label>
+            <input type="text" id="session-title" required maxlength="100">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Номер</label>
+              <input type="number" id="session-number" min="1" value="1">
+            </div>
+            <div class="form-group">
+              <label>XP награда</label>
+              <input type="number" id="session-xp" min="0" value="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Описание</label>
+            <textarea id="session-description" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Заметки для DM</label>
+            <textarea id="session-dm-notes" rows="2" placeholder="Только для мастера..."></textarea>
+          </div>
+          <div id="session-participants" class="form-group">
+            <label>Участники:</label>
+            <div id="participants-checklist"></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Создать</button>
+            <button type="button" id="cancel-session" class="btn btn-secondary">Отмена</button>
+          </div>
+        </form>
+        
+        <!-- Список сессий -->
+        <div id="sessions-list" class="grid-list"></div>
+        
+        <!-- Детали сессии (модальное окно) -->
+        <div id="session-detail" class="modal" style="display:none;">
+          <div class="modal-content">
+            <span class="modal-close" id="close-session-detail">&times;</span>
+            <h3 id="detail-title"></h3>
+            <p><strong>📅 Дата:</strong> <span id="detail-date"></span></p>
+            <p><strong>📝 Описание:</strong> <span id="detail-desc"></span></p>
+            <p><strong>⭐ XP:</strong> <span id="detail-xp"></span></p>
+            <div id="detail-participants"></div>
+            <div id="detail-dm-notes-section" style="display:none;">
+              <h4>🔒 Заметки DM:</h4>
+              <p id="detail-dm-notes"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⚔️ Вкладка: Игра -->
+      <div id="game-tab" class="tab-content">
+        <div id="no-game-room">
+          <p class="empty-state">🎲 Выберите кампанию, чтобы начать игру</p>
+        </div>
+        
+        <div id="game-room" style="display:none;">
+          <div class="game-layout">
+            <!-- 🗺️ Карта -->
+            <div class="map-area">
+              <div class="map-toolbar">
+                <button id="toggle-grid-btn" class="btn btn-sm">🔲 Сетка</button>
+                <button id="zoom-in-btn" class="btn btn-sm">🔍+</button>
+                <button id="zoom-out-btn" class="btn btn-sm">🔍−</button>
+                <span id="map-coords" class="coords-display">X: 0, Y: 0</span>
+              </div>
+              <canvas id="game-map" width="800" height="600"></canvas>
+            </div>
+            
+            <!-- 💬 Чат -->
+            <div class="chat-area">
+              <div class="chat-header">
+                <h4>💬 Чат кампании</h4>
+                <span id="online-count" class="badge">👥 0</span>
+              </div>
+              <div id="chat-messages" class="chat-messages"></div>
+              <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Сообщение..." maxlength="500">
+                <button id="send-chat-btn" class="btn btn-sm">➤</button>
+                <input type="number" id="dice-modifier" placeholder="Мод" value="0" min="-20" max="20" style="width:60px;">
+                <select id="dice-select">
+                  <option value="d4">d4</option>
+                  <option value="d6">d6</option>
+                  <option value="d8">d8</option>
+                  <option value="d10">d10</option>
+                  <option value="d12">d12</option>
+                  <option value="d20" selected>d20</option>
+                  <option value="d100">d100</option>
+                </select>
+                <button id="roll-d20-btn" class="btn btn-sm btn-dice">🎲</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ⚔️ Панель боя -->
+          <div id="combat-panel" class="combat-panel" style="display:none;">
+            <div class="combat-header">
+              <h4>⚔️ Бой — Раунд <span id="combat-round">1</span></h4>
+              <div class="combat-controls">
+                <button id="prev-turn-btn" class="btn btn-sm">⬅️</button>
+                <button id="next-turn-btn" class="btn btn-sm btn-primary">➡️</button>
+                <button id="end-combat-btn" class="btn btn-sm btn-danger">Завершить</button>
+              </div>
+            </div>
+            <div id="initiative-order" class="initiative-list"></div>
+          </div>
+          
+          <!-- 📊 Панель персонажа -->
+          <div id="character-panel" class="character-panel">
+            <div id="current-character-info"></div>
+            <div class="hp-bar">
+              <div id="hp-fill"></div>
+              <span id="hp-text">1/1 HP</span>
+            </div>
+            <div class="quick-actions">
+              <button id="heal-btn" class="btn btn-sm">❤️ +5</button>
+              <button id="damage-btn" class="btn btn-sm btn-danger">⚔️ -5</button>
+              <button id="roll-initiative-btn" class="btn btn-sm">🎲 Иниц.</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 🔔 Уведомления -->
+  <div id="notifications"></div>
+
+  <!-- 📦 Скрипты -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
