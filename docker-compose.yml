@@ -22,9 +22,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dnd_game
-      - SESSION_SECRET=change-this-in-production
+      - SESSION_SECRET=change-this-in-production-min-32-characters
       - PORT=3000
       - FRONTEND_URL=http://localhost:5173
     ports:
@@ -49,6 +49,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     command: npm run dev -- --host
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

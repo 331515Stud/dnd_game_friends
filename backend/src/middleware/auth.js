@@ -1,5 +1,5 @@
 const rateLimit = require('express-rate-limit');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const db = require('../config/database');
 
 // Rate limiting для авторизации

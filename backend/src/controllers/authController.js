@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs')
 const db = require('../config/database');
 const { registerSchema } = require('../utils/validation');
 const { sanitizeInput } = require('../utils/helpers');
